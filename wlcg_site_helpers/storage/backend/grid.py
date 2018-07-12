@@ -1,4 +1,6 @@
 '''
+WARNING, this module is slow for recursive tasks, use davix instead.
+
 GFAL2 tools support
 
     'DirectoryType', 'Dirent', 'FileType', 'GfaltEvent', 'Stat',
@@ -31,23 +33,35 @@ Result of stat
 import gfal2
 import os
 
-
 fs = gfal2.creat_context()
 
+def _ls(path):
+    try:
+        paths = fs.listdir(path)
+        return [os.path.join(path, p) for p in paths]
+    except: # p not a directory
+        return None
+
+def _size(path):
+    try:
+        return fs.stat(path).st_size
+    except:
+        return None
 
 def ls(paths=['/'], recurse=False):
     if not isinstance(paths, list) and not isinstance(paths, tuple):
         paths = [paths]
     for p in paths:
-        try:
-            items = fs.listdir(p)
-        except:
+        items = _ls(p)
+        if items is None:
             continue
+        sizes = [_size(i) for i in items]
 
-        for i in items:
-            yield os.path.join(p, i), size(i)
+        for i, s in zip(items, sizes):
+            yield i, s
+
         if recurse:
-            subitems = ls([os.path.join(p, i) for i in items], True)
+            subitems = ls(items, True)
             for j in subitems:
                 yield j
 
@@ -55,7 +69,7 @@ def size(paths=['/']):
     if not isinstance(paths, list) and not isinstance(paths, tuple):
         paths = [paths]
     for p in paths:
-        try:
-            yield fs.stat(p).st_size
-        except:
+        s = _size(p)
+        if s is None:
             continue
+        yield s
