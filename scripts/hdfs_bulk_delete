@@ -1,0 +1,61 @@
+#!/usr/bin/env python
+from __future__ import print_function
+import click
+import pandas as pd
+
+from snakebite.client import AutoConfigClient
+from tabulate import tabulate
+from datetime import datetime, timedelta
+
+
+
+@click.command()
+@click.option('--to-delete', type=click.Path(exists=True))
+def main(to_delete):
+    fs = AutoConfigClient()
+    fs.use_trash = False
+    df = pd.read_csv(to_delete, index_col=0)
+    df['date'] = pd.to_datetime(df['date'])
+    # ignore files within the last N days
+    n_days = 2
+    yesterday = datetime.now() - timedelta(days = n_days)
+    df = df[df.date < yesterday]
+    files = list(df[df.ftype == 'f']['path'])
+    directories = list(df[df.ftype == 'd']['path'])
+
+    print('Going to delete {0} files and {1} directories'.format(len(files), len(directories)))
+    print(tabulate(df.sort_values(by='date', ascending=False).head(), headers='keys', tablefmt='psql'))
+    try:
+        print('Deleting', len(files), 'files')
+        for f in fs.delete(files):
+            result = f['result']
+            if not result:
+                print('Could not delete ', f['path'])
+    except Exception as e:
+        print('Could not delete all files:', e)
+
+    try:
+        for f in fs.rmdir(directories):
+            result = f['result']
+            if not result:
+                print('Could not delete ', f['path'])
+    except Exception as e:
+        print('Could not delete all directories:', e)
+
+
+
+    # paths = list(df['path'])
+    # print(len(paths))
+    # files = []
+    # directories = []
+
+    # for p in paths:
+    #     if fs.test(p, directory=True):
+    #         directories.append(p)
+    #     else:
+    #         files.append(p)
+    # print(len(files), 'files', len(directories), 'directories')
+    
+
+if __name__ == '__main__':
+    main()
