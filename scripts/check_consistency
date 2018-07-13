@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+'''
+Test
+'''
+from __future__ import print_function, division
+import click
+from textwrap import dedent
+from wlcg_site_helpers.storage import consistency
+from wlcg_site_helpers.storage.backend import davix, hdfs
+import pandas as pd
+import os
+
+fs_options = {
+    'hdfs': hdfs,
+    'grid': davix,
+}
+
+__grid_path_default__ = 'davs://lcgse01.phy.bris.ac.uk/dpm/phy.bris.ac.uk/home/cms/store/PhEDEx_LoadTest07'
+__grid_path_help__ = """
+Path (including protocol) to folder hierarchy to check, e.g. <protocol>://<se host>/<path to check>
+"""
+__grid_path_help__ = __grid_path_help__.replace('\n', '')
+
+__local_path_default__ = '/dpm/phy.bris.ac.uk/home/cms/store/PhEDEx_LoadTest07'
+__local_path_help__ = """
+Path to the local file system, mount path or as recognised by the specific implementation (e.g. via hadoop commands)
+"""
+__local_path_help__ = __local_path_help__.replace('\n', '')
+
+
+@click.command()
+@click.option('--grid-path', default=__grid_path_default__, help=__grid_path_help__)
+@click.option('--local-path', default=__local_path_default__, help=__local_path_help__)
+@click.option('--local-fs', default='hdfs', type=click.Choice(fs_options.keys()))
+@click.option('--cache-path', type=click.Path(), default='/tmp')
+def main(grid_path, local_path, local_fs, cache_path):
+
+    entries_grid = consistency.grid_entries(grid_path, davix.ls, cache_path)
+    entries_local = consistency.local_entries(local_path, fs_options[local_fs].ls, cache_path)
+    
+    local_but_not_grid = consistency.diff_local_but_not_grid(entries_grid, entries_local, cache_path)
+    grid_but_not_local = consistency.diff_grid_but_not_local(entries_grid, entries_local, cache_path)
+
+    size_in_tb_local = local_but_not_grid['size'].sum()/10**12
+    size_in_tb_grid = grid_but_not_local['size'].sum()/10**12
+    print('{0} TB in {1} files on local-only'.format(size_in_tb_local, len(local_but_not_grid)))
+    print('{0} TB in {1} files on grid-only'.format(size_in_tb_grid, len(grid_but_not_local)))
+
+if __name__ == '__main__':
+    main()
