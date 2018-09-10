@@ -7,7 +7,6 @@ import pytest
 
 from click.testing import CliRunner
 
-from wlcg_site_helpers import wlcg_site_helpers
 from wlcg_site_helpers import cli
 
 

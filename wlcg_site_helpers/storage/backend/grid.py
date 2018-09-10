@@ -35,18 +35,21 @@ import os
 
 fs = gfal2.creat_context()
 
+
 def _ls(path):
     try:
         paths = fs.listdir(path)
         return [os.path.join(path, p) for p in paths]
-    except: # p not a directory
+    except:  # p not a directory
         return None
+
 
 def _size(path):
     try:
         return fs.stat(path).st_size
     except:
         return None
+
 
 def ls(paths=['/'], recurse=False):
     if not isinstance(paths, list) and not isinstance(paths, tuple):
@@ -64,6 +67,7 @@ def ls(paths=['/'], recurse=False):
             subitems = ls(items, True)
             for j in subitems:
                 yield j
+
 
 def size(paths=['/']):
     if not isinstance(paths, list) and not isinstance(paths, tuple):

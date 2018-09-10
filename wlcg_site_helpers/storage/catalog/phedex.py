@@ -1,9 +1,6 @@
 import requests
-import json
-import os
 import six
 from units import predefined, unit
-import copy
 
 predefined.define_computer_units()
 

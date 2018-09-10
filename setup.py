@@ -32,7 +32,7 @@ test_requirements = [
 
 setup(
     name='wlcg_site_helpers',
-    version='0.0.1',
+    version='0.0.2',
     description="Set of useful scripts for the OPS of a WLCG site",
     long_description=readme + '\n\n' + history,
     author="Luke Kreczko",

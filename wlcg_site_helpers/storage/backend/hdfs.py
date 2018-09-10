@@ -3,10 +3,12 @@ import pandas as pd
 
 fs = AutoConfigClient()
 
+
 def ls(paths=['/'], recursive=False):
     if not isinstance(paths, list) and not isinstance(paths, tuple):
         paths = [paths]
-    data = [dict(size=p['length'], path=p['path'], ftype=p['file_type'], date=p['modification_time']) for p in fs.ls(paths, recursive)]
+    data = [dict(size=p['length'], path=p['path'], ftype=p['file_type'], date=p['modification_time'])
+            for p in fs.ls(paths, recursive)]
     df = pd.DataFrame(data)
     df = df.reindex(['size', 'path', 'ftype', 'date'], axis=1)
     df['size'] = df['size'].astype(int)

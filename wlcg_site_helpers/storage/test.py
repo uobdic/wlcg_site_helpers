@@ -2,15 +2,13 @@
     Provides functionality for bulk-deleting files on a storage element
 """
 from __future__ import absolute_import, print_function
-import gfal2
 import os
-import logging
 import hdfs
 import grid
 import json
 
 
-def get_folders(prefix, fs = hdfs, cache='localfs.json'):
+def get_folders(prefix, fs=hdfs, cache='localfs.json'):
     if os.path.exists(cache):
         with open(cache) as f:
             return json.load(f)
