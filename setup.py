@@ -13,7 +13,10 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
     'Click>=6.0',
-    'snakebite'
+    # 'snakebite',
+    'pandas',
+    'requests',
+    'units'
     # TODO: put package requirements here
 ]
 
