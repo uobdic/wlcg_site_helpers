@@ -16,8 +16,8 @@ requirements = [
     # 'snakebite',
     'pandas',
     'requests',
-    'units'
-    # TODO: put package requirements here
+    'units',
+    'tabulate',
 ]
 
 setup_requirements = [
@@ -41,9 +41,15 @@ setup(
     packages=find_packages(include=['wlcg_site_helpers']),
     entry_points={
         'console_scripts': [
-            'wlcg_site_helpers=wlcg_site_helpers.cli:main'
+            'wlcg_site_helpers=wlcg_site_helpers.cli:main',
         ]
     },
+    scripts=[
+        'scripts/check_storage_consistency',
+        'scripts/download_phedex_data',
+        'scripts/grid_bulk_delete',
+        'scripts/hdfs_bulk_delete',
+    ],
     include_package_data=True,
     install_requires=requirements,
     license="Apache Software License 2.0",
