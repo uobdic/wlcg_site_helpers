@@ -1,0 +1,11 @@
+Flask
+Flask-Cache
+Jinja2
+Werkzeug
+distribute
+wsgiref
+six
+bokeh
+pandas
+plotly
+Flask-SocketIO
