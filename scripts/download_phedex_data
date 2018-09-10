@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+    For a small site like T2_UK_SGrid_Bristol a dowload takes around 6 minutes.
+"""
 import click
 import pandas as pd
 import os

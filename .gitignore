@@ -63,3 +63,4 @@ target/
 
 *.json
 *.csv
+.ipynb_checkpoints
