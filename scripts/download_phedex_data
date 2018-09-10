@@ -3,6 +3,10 @@ import click
 import pandas as pd
 import os
 
+from tabulate import tabulate
+from units import unit, predefined
+predefined.define_units()
+
 from wlcg_site_helpers.storage.catalog.phedex import get_subscriptions
 
 
@@ -17,10 +21,26 @@ def main(site, since, instance, output):
         print('Output', output, 'alread exists.')
         overwrite = click.confirm('Do you want to overwrite?')
         if not overwrite:
+            df = pd.read_csv(output)
+            summarise(df, site)
             return
     subscriptions = get_subscriptions(site, since, instance)
     df = pd.DataFrame(subscriptions)
     df.to_csv(output)
+    summarise(df, site)
+
+
+def summarise(df, site):
+    nentries = len(df)
+    print('Downloaded {0} entries for site {1}'.format(nentries, site))
+    print('Summary:')
+    df['bytes'] = df['bytes_raw'].apply(unit('B'))
+    # we only care about TBs
+    df['bytes'] = df['bytes'].apply(unit('TiB'))
+    df = df.sort_values(['bytes'], ascending=False)
+    summary = df.groupby(['requested_by_name'])['bytes'].agg(['sum'])
+    summary = summary.sort_values(['sum'], ascending=False)
+    print(tabulate(summary, headers=['group', 'usage (TiB)'], tablefmt='psql'))
 
 
 if __name__ == '__main__':
