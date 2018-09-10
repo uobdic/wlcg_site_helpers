@@ -1,0 +1,27 @@
+#!/usr/bin/env python
+import click
+import pandas as pd
+import os
+
+from wlcg_site_helpers.storage.catalog.phedex import get_subscriptions
+
+
+@click.command()
+@click.option('-s', '--site', required=True)
+@click.option('--since', type=int, default=1481500800, help='download data created after "since" (unix timestamp)')
+@click.option('--instance', default='prod', help='phedex instance to query')
+@click.option('-o', '--output', type=click.Path(), default='subscriptions.csv')
+def main(site, since, instance, output):
+    # print(site, since, instance)
+    if os.path.exists(output):
+        print('Output', output, 'alread exists.')
+        overwrite = click.confirm('Do you want to overwrite?')
+        if not overwrite:
+            return
+    subscriptions = get_subscriptions(site, since, instance)
+    df = pd.DataFrame(subscriptions)
+    df.to_csv(output)
+
+
+if __name__ == '__main__':
+    main()
