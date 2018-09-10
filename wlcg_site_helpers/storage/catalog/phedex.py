@@ -5,6 +5,10 @@ from units import predefined, unit
 predefined.define_computer_units()
 
 
+def get_pending_deletions(site, phedex_instance='prod'):
+    pass
+
+
 def get_subscriptions(site, since=1481500800, phedex_instance='prod'):
     params = [
         ('create_since', since),
